@@ -1,4 +1,6 @@
 ﻿using Interfaces;
+using MQTTnet;
+using MQTTnet.Server;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,9 +10,30 @@ namespace Services
 {
     public class MqttMessageService : IMessageService
     {
-        public Task PublishtoAll(string message)
+
+        IMqttServer mqttServer;
+        public MqttMessageService()
         {
-            throw new NotImplementedException();
+            var optionsBuilder = new MqttServerOptionsBuilder()
+    .WithConnectionBacklog(100);
+    //.WithDefaultEndpointPort(1883);
+
+            mqttServer = new MqttFactory().CreateMqttServer();
+            mqttServer.ClientConnected += MqttServer_ClientConnected;
+            mqttServer.StartAsync(optionsBuilder.Build());
+        }
+
+
+        public async Task PublishtoAll(string message)
+        {
+            var result = new MqttApplicationMessageBuilder()
+                                   .WithTopic("app/osmanbar")
+                                   .WithPayload(message)
+                                   .WithAtLeastOnceQoS()
+                                   .WithRetainFlag()
+                                   .Build();
+
+            await mqttServer.PublishAsync(result);
         }
 
         public Task PublishtoGroup(string groupId, string message)
@@ -22,5 +45,11 @@ namespace Services
         {
             throw new NotImplementedException();
         }
+        private static void MqttServer_ClientConnected(object sender, MqttClientConnectedEventArgs e)
+        {
+            Console.WriteLine("client geldi");
+        }
     }
+
+   
 }

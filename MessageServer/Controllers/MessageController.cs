@@ -15,12 +15,12 @@ namespace MessageServer.Controllers
 
         public MessageController(IMessageService messageService)
         {
-            messageService = messageService_;
+            messageService_ = messageService;
         }
         [HttpGet("all/{message}")]
         public ActionResult<string> PublishMessagetoAll(string message)
         {
-            messageService_.PublishtoAll(message);
+            messageService_.PublishtoAll(message).GetAwaiter().GetResult();
             return Ok();
         }
 

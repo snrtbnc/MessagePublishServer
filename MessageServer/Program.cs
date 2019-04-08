@@ -7,18 +7,24 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-
+using MQTTnet.AspNetCore;
 namespace MessageServer
 {
     public class Program
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            BuildWebHost(args).Run();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+        private static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+        .UseKestrel(o =>
+        {
+            o.ListenAnyIP(1883, l => l.UseMqtt()); // mqtt pipeline
+            o.ListenAnyIP(53963); // default http pipeline
+        })
+    .UseStartup<Startup>()
+    .Build();
     }
 }

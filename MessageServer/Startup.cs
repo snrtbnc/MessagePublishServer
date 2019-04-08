@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MQTTnet.AspNetCore;
+using MQTTnet.Server;
 using Services;
 
 namespace MessageServer
@@ -28,7 +30,15 @@ namespace MessageServer
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddTransient<IMessageService, MqttMessageService>();
+            //this adds a hosted mqtt server to the services
+           
+            //this adds tcp server support based on Microsoft.AspNetCore.Connections.Abstractions
+            services.AddMqttConnectionHandler();
+
+            //this adds websocket support
+            services.AddMqttWebSocketServerAdapter();
+
+            services.AddSingleton<IMessageService, MqttMessageService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
