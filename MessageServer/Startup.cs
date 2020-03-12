@@ -22,15 +22,12 @@ namespace MessageServer
         IMqttServer mqttServer;
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
-            
-            var optionsBuilder = new MqttServerOptionsBuilder()
-    .WithDefaultEndpointPort(1883);
+           
     
 
-            mqttServer = new MqttFactory().CreateMqttServer();
+            
            // mqttServer.+= MqttMessageService.MqttServer_ClientConnected;
-            mqttServer.StartAsync(optionsBuilder.Build());
+           // mqttServer.StartAsync(optionsBuilder.Build());
         }
 
         public IConfiguration Configuration { get; }
@@ -41,20 +38,16 @@ namespace MessageServer
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             //this adds a hosted mqtt server to the services
-
-
-            //this adds a hosted mqtt server to the services
-            services.AddHostedMqttServer(builder => builder.WithDefaultEndpointPort(1883).WithConnectionValidator(c=> {
-                Console.WriteLine("conection !!!!");
-            }));
-
-            //this adds tcp server support based on Microsoft.AspNetCore.Connections.Abstractions
-            services.AddMqttConnectionHandler();
-
-            //this adds websocket support
-            services.AddMqttWebSocketServerAdapter();
-
-            services.AddSingleton<IMessageService>(new MqttMessageService(mqttServer));
+            var mqttServerOptions = new MqttServerOptionsBuilder()
+               .WithDefaultEndpointPort(5001)
+               .Build();
+            services
+                .AddHostedMqttServer(mqttServerOptions)
+                .AddMqttConnectionHandler()
+                .AddMqttWebSocketServerAdapter()
+                .AddConnections();
+           
+            services.AddSingleton<IMessageService, MqttMessageService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

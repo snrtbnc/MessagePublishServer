@@ -23,6 +23,7 @@ namespace MessageServer
                     {
                         o.ListenAnyIP(1883, l => l.UseMqtt());
                         o.ListenAnyIP(5000); // default http pipeline
+                        o.ListenAnyIP(5001); // default http pipeline
                     })
                     .UseStartup<Startup>()
                     .Build();
