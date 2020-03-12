@@ -12,43 +12,38 @@ namespace Services
     {
 
         IMqttServer mqttServer;
-        public MqttMessageService()
+        public MqttMessageService(IMqttServer mqttServer)
         {
-            var optionsBuilder = new MqttServerOptionsBuilder()
-    .WithConnectionBacklog(100);
-    //.WithDefaultEndpointPort(1883);
-
-            mqttServer = new MqttFactory().CreateMqttServer();
-            mqttServer.ClientConnected += MqttServer_ClientConnected;
-            mqttServer.StartAsync(optionsBuilder.Build());
+            this.mqttServer = mqttServer;
         }
 
 
         public async Task PublishtoAll(string message)
         {
-            var result = new MqttApplicationMessageBuilder()
-                                   .WithTopic("app/osmanbar")
-                                   .WithPayload(message)
-                                   .WithAtLeastOnceQoS()
-                                   .WithRetainFlag()
-                                   .Build();
-
-            await mqttServer.PublishAsync(result);
+          
         }
 
-        public Task PublishtoGroup(string groupId, string message)
+        public async Task PublishtoGroup(string groupId, string message)
         {
-            throw new NotImplementedException();
+            var result = new MqttApplicationMessageBuilder()
+                                 .WithTopic($"app/{groupId}")
+                                 .WithPayload(message)
+                                 .WithAtLeastOnceQoS()
+                                 //.WithExactlyOnceQoS()
+                                 .WithRetainFlag()
+                                 .Build();
+
+            await mqttServer.PublishAsync(result);
         }
 
         public Task PublishtoPersonal(string personalId, string groupId, string message)
         {
             throw new NotImplementedException();
         }
-        private static void MqttServer_ClientConnected(object sender, MqttClientConnectedEventArgs e)
-        {
-            Console.WriteLine("client geldi");
-        }
+        //public static void MqttServer_ClientConnected(object sender, MqttClientConnectedEventArgs e)
+        //{
+        //    Console.WriteLine("client geldi");
+        //}
     }
 
    

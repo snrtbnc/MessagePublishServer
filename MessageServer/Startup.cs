@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MQTTnet;
 using MQTTnet.AspNetCore;
 using MQTTnet.Server;
 using Services;
@@ -18,9 +19,18 @@ namespace MessageServer
 {
     public class Startup
     {
+        IMqttServer mqttServer;
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            
+            var optionsBuilder = new MqttServerOptionsBuilder()
+    .WithDefaultEndpointPort(1883);
+    
+
+            mqttServer = new MqttFactory().CreateMqttServer();
+           // mqttServer.+= MqttMessageService.MqttServer_ClientConnected;
+            mqttServer.StartAsync(optionsBuilder.Build());
         }
 
         public IConfiguration Configuration { get; }
@@ -31,14 +41,20 @@ namespace MessageServer
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             //this adds a hosted mqtt server to the services
-           
+
+
+            //this adds a hosted mqtt server to the services
+            services.AddHostedMqttServer(builder => builder.WithDefaultEndpointPort(1883).WithConnectionValidator(c=> {
+                Console.WriteLine("conection !!!!");
+            }));
+
             //this adds tcp server support based on Microsoft.AspNetCore.Connections.Abstractions
             services.AddMqttConnectionHandler();
 
             //this adds websocket support
             services.AddMqttWebSocketServerAdapter();
 
-            services.AddSingleton<IMessageService, MqttMessageService>();
+            services.AddSingleton<IMessageService>(new MqttMessageService(mqttServer));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -48,7 +64,7 @@ namespace MessageServer
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            app.UseMqttEndpoint();
             app.UseMvc();
         }
     }

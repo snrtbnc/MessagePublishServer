@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MessageServer.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api")]
     [ApiController]
     public class MessageController: ControllerBase
     {
