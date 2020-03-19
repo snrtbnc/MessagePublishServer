@@ -20,7 +20,14 @@ namespace Services
 
         public async Task PublishtoAll(string message)
         {
-          
+          var result = new MqttApplicationMessageBuilder()
+                                 .WithTopic($"app/all")
+                                 .WithPayload(message)
+                                 .WithAtLeastOnceQoS()
+                                 .WithRetainFlag(false)
+                                 .Build();
+
+            await mqttServer.PublishAsync(result);
         }
 
         public async Task PublishtoGroup(string groupId, string message)
@@ -29,8 +36,7 @@ namespace Services
                                  .WithTopic($"app/{groupId}")
                                  .WithPayload(message)
                                  .WithAtLeastOnceQoS()
-                                 //.WithExactlyOnceQoS()
-                                 .WithRetainFlag()
+                                 .WithRetainFlag(false)
                                  .Build();
 
             await mqttServer.PublishAsync(result);
