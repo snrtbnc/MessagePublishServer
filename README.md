@@ -1,1 +1,1 @@
-#Mqtt base MessagePublishServer API  direct connect with WS
+#Mqtt base MessagePublishServer
