@@ -1,1 +1,1 @@
-#Mqtt base MessagePublishServer direct connect with ws
+#Mqtt base MessagePublishServer can direct connect with ws
